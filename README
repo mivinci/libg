@@ -1,0 +1,11 @@
+libg
+====
+
+Asynchronize your C/C艹 code by just linking.
+
+
+## Refs
+
+  - https://github.com/golang/go
+  - https://github.com/tencent/libco
+
