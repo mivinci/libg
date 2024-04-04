@@ -24,11 +24,11 @@ long timerscheck(Timers *tp) {
     return -1;
   now = timens();
   if (tp->len > 0) {
-    // if (tp->cap > 2 * tp->len) {
-    //   size = tp->len;
-    //   tp->heap = realloc(tp->heap, size);
-    //   tp->cap = size;
-    // }
+    if (tp->cap - tp->len > 64) {
+      size = tp->len;
+      tp->heap = realloc(tp->heap, size);
+      tp->cap = size;
+    }
     for (; tp->len > 0;) {
       top = tp->heap[0];
       delay = now - top->when;
