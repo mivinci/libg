@@ -77,5 +77,7 @@ void timersinit(Timers *);
 void timersopen(Timers *, Event *);
 long timerscheck(Timers *);
 void hookinit(void);
+int dial0(int, const char *, unsigned short);
+int listen0(int, const char *, unsigned short);
 
 #endif

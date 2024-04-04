@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "g.h"
+#include "gg.h"
 
 void f1(void) {
   char buf[64];
@@ -22,7 +22,7 @@ void f1(void) {
 }
 
 int main(void) {
-  goinit();
-  go(f1, 0);
-  gowait();
+  gg_init();
+  gg(f1, 0);
+  gg_wait();
 }

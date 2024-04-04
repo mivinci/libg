@@ -6,10 +6,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include "gg.h"
 #include "runtime.h"
 
 static int bind0(int, const char *, unsigned short);
-static int dial0(int, const char *, unsigned short);
+static int connect0(int, const char *, unsigned short);
 
 void setcloexec(int fd) {}
 
@@ -20,27 +21,41 @@ void setnonblock(int fd) {
     throw("setnonblock: fcntl failed with errno %d", errno);
 }
 
-int listentcp(const char *host, unsigned short port) {
+int listen0(int type, const char *host, unsigned short port) {
   int fd, n;
-  fd = bind0(SOCK_STREAM, host, port);
-  if (fd < 0)
-    throw("listentcp: bind0 failed with %d", fd);
-  n = listen(fd, 5);
-  if (n < 0)
-    throw("listentcp: listen failed with errno %d", errno);
+  switch (type) {
+  case GG_UDP:
+    fd = bind0(SOCK_DGRAM, host, port);
+    break;
+  case GG_TCP:
+    fd = bind0(SOCK_STREAM, host, port);
+    if (fd < 0)
+      throw("listen0: bind0 failed with %d", fd);
+    n = listen(fd, 5);
+    if (n < 0)
+      throw("listen0: listen failed with errno %d", errno);
+    break;
+  default:
+    fd = -1;
+    throw("listen0: unsupported type %d", type);
+  }
   return fd;
 }
 
-int dialtcp(const char *host, unsigned short port) {
-  return dial0(SOCK_STREAM, host, port);
-}
-
-int listenudp(const char *host, unsigned short port) {
-  return bind0(SOCK_DGRAM, host, port);
-}
-
-int dialudp(const char *host, unsigned short port) {
-  return dial0(SOCK_DGRAM, host, port);
+int dial0(int type, const char *host, unsigned short port) {
+  int fd;
+  switch (type) {
+  case GG_UDP:
+    fd = connect0(SOCK_DGRAM, host, port);
+    break;
+  case GG_TCP:
+    fd = connect0(SOCK_STREAM, host, port);
+    break;
+  default:
+    fd = -1;
+    throw("dial0: unsupported type %d", type);
+  }
+  return fd;
 }
 
 static int isv6(const char *p) {
@@ -78,7 +93,7 @@ static int bind0(int type, const char *host, unsigned short port) {
   return fd;
 }
 
-static int dial0(int type, const char *host, unsigned short port) {
+int connect0(int type, const char *host, unsigned short port) {
   struct addrinfo hint, *ap;
   char b[6];
   int n, fd;
@@ -91,11 +106,11 @@ static int dial0(int type, const char *host, unsigned short port) {
 
   n = getaddrinfo(host, b, &hint, &ap);
   if (n < 0)
-    throw("dial0: getaddrinfo failed with %d", n);
+    throw("connect0: getaddrinfo failed with %d", n);
 
   fd = socket(hint.ai_family, type, 0);
   if (fd < 0)
-    throw("dial0: socket failed with errno %d", errno);
+    throw("connect0: socket failed with errno %d", errno);
 
   for (; ap; ap = ap->ai_next) {
     n = connect(fd, ap->ai_addr, ap->ai_addrlen);

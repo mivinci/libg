@@ -14,8 +14,8 @@ static void gput(G *);
 static G *gfget(void);
 static void gfput(G *);
 static void resume(G *);
-extern int gosave(Gobuf *) asm("gosave");
-extern int gogo(Gobuf *) asm("gogo");
+extern int gosave(Gobuf *);
+extern int gogo(Gobuf *);
 
 static __thread Sched sched;
 
@@ -112,7 +112,7 @@ static void ready(G *gp) {
 
 void yield1(void) {
   ready(sched.gx);
-  return yield0(G_RUNNABLE);
+  yield0(G_RUNNABLE);
 }
 
 void yield(void) { yield0(G_WAITING); }
