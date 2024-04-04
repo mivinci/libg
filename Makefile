@@ -23,11 +23,11 @@ endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
+	
+all: libg.a
 
 libg.a: $(OBJS)
 	$(AR) rcs $@ $^
-
-all: libg.a
 
 clean:
 	rm *.o
