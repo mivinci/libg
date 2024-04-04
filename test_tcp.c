@@ -6,7 +6,7 @@
 
 #include "gg.h"
 
-void handle(void *arg) {
+void f2(void *arg) {
   char buf[64];
   int fd, n;
 
@@ -14,14 +14,14 @@ void handle(void *arg) {
   for (;;) {
     n = read(fd, buf, 64);
     if (n < 0) {
-      printf("handle: read failed with errno %d", errno);
+      printf("f2: read failed with errno %d", errno);
       exit(1);
     }
     write(fd, buf, n);
   }
 }
 
-int main(void) {
+int f1(void) {
   struct sockaddr sa;
   socklen_t n;
   int fd, peerfd;
@@ -30,6 +30,12 @@ int main(void) {
 
   for (;;) {
     peerfd = accept(fd, &sa, &n);
-    gg(handle, (void *)peerfd);
+    gg(f2, (void *)peerfd);
   }
+}
+
+int main(void) {
+  gg_init();
+  gg(f1, 0);
+  gg_wait();
 }

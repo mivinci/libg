@@ -1,6 +1,10 @@
 #ifndef GG_H
 #define GG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 
@@ -21,5 +25,9 @@ void gg_sleep(long);
 
 int gg_dial(int, const char *, unsigned short);
 int gg_listen(int, const char *, unsigned short);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

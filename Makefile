@@ -1,8 +1,12 @@
 AR     := ar
 CC     := gcc
-CFLAGS := -Wall -O2 -std=c89
+CFLAGS := -Wall -O2
 OS     := $(shell uname -s)
 ARCH   := $(shell uname -m)
+
+ifeq ($(DEBUG), 1)
+	CFLAGS += -g
+endif
 
 OBJS := sched.o netpoll.o time.o net.o hook.o gg.o
 

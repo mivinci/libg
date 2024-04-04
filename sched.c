@@ -14,8 +14,8 @@ static void gput(G *);
 static G *gfget(void);
 static void gfput(G *);
 static void resume(G *);
-extern int gosave(Gobuf *);
-extern int gogo(Gobuf *);
+extern int gosave(Gobuf *) asm("gosave");
+extern int gogo(Gobuf *) asm("gogo");
 
 static __thread Sched sched;
 
@@ -169,6 +169,9 @@ int await(int fd, int mode, long ns, long period) {
   Event *ep;
 
   gp = sched.gx;
+  if (!gp)
+    throw("await: sched.gx is nil");
+
   ep = &gp->ev;
   if (ns > -1) {
     ep->period = period;
