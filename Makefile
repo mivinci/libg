@@ -27,7 +27,7 @@ endif
 libg.a: $(OBJS)
 	$(AR) rcs $@ $^
 
-all: libg
+all: libg.a
 
 clean:
 	rm *.o
