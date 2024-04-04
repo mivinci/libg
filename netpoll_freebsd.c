@@ -3,9 +3,6 @@
 #include <sys/event.h>
 #include <time.h>
 
-#define N 64
-
-extern void netpollready(G **, Event *, int);
 
 static int kq = -1;
 
@@ -30,7 +27,7 @@ int netpollopen(Event *ep) {
 }
 
 G *netpoll(long ns) {
-  struct kevent ev[N], *ep;
+  struct kevent ev[64], *ep;
   struct timespec ts, *tsp = nil;
   G *gp;
   int n, i, mode;
@@ -46,7 +43,7 @@ G *netpoll(long ns) {
 
 retry:
   gp = nil;
-  n = kevent(kq, nil, 0, ev, N, tsp);
+  n = kevent(kq, nil, 0, ev, len(ev), tsp);
   if (n < 0) {
     if (n == -EINTR)
       goto retry;

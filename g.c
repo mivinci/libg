@@ -12,5 +12,17 @@ void gowait(void) {
 }
 
 void gospawn(void (*f)(void *), void *arg) {
-  spawn((void (*)(void *))f, arg, 4096);
+  spawn(f, arg, 4096);
+}
+
+void goyield(void) {
+  yield();
+}
+
+void goyield1(void) {
+  yield1();
+}
+
+void gosleep(long ms) {
+  asleep(ms);
 }

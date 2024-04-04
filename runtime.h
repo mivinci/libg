@@ -2,6 +2,7 @@
 #define RUNTIME_H
 
 #define nil ((void *)0)
+#define len(p) (sizeof(p) / sizeof(p[0]))
 
 #define G_IDLE 0
 #define G_RUNNABLE 1
@@ -69,6 +70,7 @@ void asleep(long);
 void schedinit(void);
 void netpollinit(void);
 int netpollopen(Event *);
+void netpollready(G **, Event *, int);
 G *netpoll(long);
 long timens(void);
 void timersinit(Timers *);

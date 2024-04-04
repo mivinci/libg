@@ -6,7 +6,7 @@ void f1(void) {
   int i;
   for (i = 0; i < 4; i++) {
     puts("f1()");
-    asleep(2000);
+    gosleep(2000);
   }
 }
 
@@ -14,7 +14,7 @@ void f2(void) {
   int i;
   for (i = 0; i < 4; i++) {
     puts("f2()");
-    asleep(2000);
+    gosleep(2000);
   }
 }
 

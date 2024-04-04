@@ -6,5 +6,8 @@
 void goinit(void);
 void gowait(void);
 void gospawn(void (*)(void *), void *);
+void goyield(void);
+void goyield1(void);
+void gosleep(long);
 
 #endif
