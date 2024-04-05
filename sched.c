@@ -8,7 +8,6 @@
 
 static void ready(G *);
 static void exit0(void);
-static void yield0(int);
 static G *gget(void);
 static void gput(G *);
 static G *gfget(void);
@@ -121,7 +120,7 @@ void yield1(void) {
 
 void yield(void) { yield0(G_WAITING); }
 
-static void yield0(int state) {
+void yield0(int state) {
   G *gp;
   gp = sched.gx;
   gp->state = state;

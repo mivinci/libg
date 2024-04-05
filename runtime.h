@@ -1,6 +1,9 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
+#define bool int
+#define true 1
+#define false 0
 #define nil ((void *)0)
 #define len(p) (sizeof(p) / sizeof(p[0]))
 
@@ -61,8 +64,9 @@ struct Sched {
 void throw(const char *, ...);
 void setcloexec(int);
 void setnonblock(int);
-void yield(void);
+void yield0(int);
 void yield1(void);
+void yield(void);
 void schedule(void);
 void spawn(void (*)(void *), void *, int);
 int await(int, int, long, long);
