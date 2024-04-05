@@ -1,6 +1,6 @@
 AR     := ar
 CC     := gcc
-CFLAGS := -Wall
+CFLAGS := -Wall -O2
 OS     := $(shell uname -s)
 ARCH   := $(shell uname -m)
 
