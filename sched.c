@@ -1,8 +1,8 @@
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include "runtime.h"
 
@@ -48,9 +48,13 @@ void spawn(void (*f)(void *), void *arg, int size) {
   G *gp;
   char *sp;
   void **ret;
-  if (!(gp = gfget()))
-    if (!(gp = malloc(size + sizeof *gp)))
-      throw("spawn: out of memory");
+
+  gp = gfget();
+  if (!gp)
+    gp = malloc(size + sizeof *gp);
+  if (!gp)
+    throw("spawn: out of memory");
+
   gp->stackguard = gp + 1;
   gp->state = G_IDLE;
   gp->next = nil;
@@ -189,6 +193,4 @@ int await(int fd, int mode, long ns, long period) {
   return gp->mp;
 }
 
-void asleep(long ms) {
-  await(-1, 0, ms*1000000, 0);
-}
+void asleep(long ms) { await(-1, 0, ms * 1000000, 0); }

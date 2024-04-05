@@ -59,7 +59,7 @@ int dial0(int type, const char *host, unsigned short port) {
 }
 
 static int isv6(const char *p) {
-  for (; p; p++)
+  for (; *p; p++)
     if (*p == ':')
       return 1;
   return 0;
