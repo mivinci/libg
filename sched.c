@@ -6,7 +6,7 @@
 
 #include "runtime.h"
 
-static void ready(G *);
+
 static void exit0(void);
 static G *gget(void);
 static void gput(G *);
@@ -33,6 +33,8 @@ void schedinit(void) {
   sched.gtail = nil;
   timersinit(&sched.t);
 }
+
+G *getg(void) { return sched.gx; }
 
 static void exit0() {
   G *gp;
@@ -106,7 +108,7 @@ static void gput(G *gp) {
   sched.gtail = gp;
 }
 
-static void ready(G *gp) {
+void ready(G *gp) {
   for (; gp; gp = gp->next) {
     gp->state = G_RUNNABLE;
     gput(gp);

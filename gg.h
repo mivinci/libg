@@ -5,8 +5,15 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
+#if defined(__STDC__)
+#include <stdbool.h>
+#else
+#define bool int
+#define true 1
+#define false 0
+#endif
 
+#include <stddef.h>
 
 #define gg(f, a) gg_spawn((void (*)(void *))f, a, 1048576)
 
@@ -16,6 +23,14 @@ void gg_spawn(void (*)(void *), void *, int);
 void gg_yield(void);
 void gg_yield1(void);
 void gg_sleep(long);
+
+#define gg_makechan(t, n) gg_makechansize(n, sizeof(t))
+
+struct gg_chan;
+struct gg_chan *gg_makechansize(int, int);
+bool gg_send(struct gg_chan *, void *);
+bool gg_recv(struct gg_chan *, void *);
+void gg_close(struct gg_chan *);
 
 #define GG_UDP 0
 #define GG_TCP 1

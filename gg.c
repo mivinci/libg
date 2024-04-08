@@ -28,6 +28,22 @@ void gg_sleep(long ms) {
   asleep(ms);
 }
 
+struct gg_chan *gg_makechansize(int cap, int elsize) {
+  return (struct gg_chan*)makechan(cap, elsize);
+}
+
+bool gg_send(struct gg_chan *cp, void *p) {
+  return chansend((Chan*)cp, p, true);
+}
+
+bool gg_recv(struct gg_chan *cp, void *p) {
+  return chanrecv((Chan*)cp, p, true);
+}
+
+void gg_close(struct gg_chan *cp) {
+  return chanclose((Chan*)cp);
+}
+
 int gg_dial(int type, const char *host, unsigned short port) {
   return dial0(type, host, port);
 }

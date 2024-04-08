@@ -1,9 +1,12 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
+#ifndef bool
 #define bool int
 #define true 1
 #define false 0
+#endif
+
 #define nil ((void *)0)
 #define len(p) (sizeof(p) / sizeof(p[0]))
 
@@ -21,6 +24,32 @@ typedef struct Event Event;
 typedef struct Gobuf Gobuf;
 typedef struct Timers Timers;
 typedef struct Sched Sched;
+typedef struct Chan Chan;
+typedef struct WaitQ WaitQ;
+typedef struct Case Case;
+
+struct Case {
+  G *g;
+  Chan *c;
+  int op;
+};
+
+struct WaitQ {
+  G *head;
+  G *tail;
+};
+
+struct Chan {
+  void *ptr;
+  int len;
+  int cap;
+  int elsize;
+  int closed;
+  int sendx;
+  int recvx;
+  WaitQ sendq;
+  WaitQ recvq;
+};
 
 struct Gobuf {
   void *sp;
@@ -51,6 +80,7 @@ struct G {
   Event ev;
   int state;
   int mp;
+  void *p;
 };
 
 struct Sched {
@@ -64,6 +94,8 @@ struct Sched {
 void throw(const char *, ...);
 void setcloexec(int);
 void setnonblock(int);
+G *getg(void);
+void ready(G *);
 void yield0(int);
 void yield1(void);
 void yield(void);
@@ -81,6 +113,10 @@ void timersinit(Timers *);
 void timersopen(Timers *, Event *);
 long timerscheck(Timers *);
 void hookinit(void);
+Chan *makechan(int, int);
+bool chansend(Chan *, void *, bool);
+bool chanrecv(Chan *, void *, bool);
+void chanclose(Chan *);
 int dial0(int, const char *, unsigned short);
 int listen0(int, const char *, unsigned short);
 

@@ -1,6 +1,6 @@
 AR     := ar
 CC     := gcc
-CFLAGS := -Wall -O2
+CFLAGS := -Wall
 OS     := $(shell uname -s)
 ARCH   := $(shell uname -m)
 
@@ -8,7 +8,7 @@ ifeq ($(DEBUG), 1)
 	CFLAGS += -g
 endif
 
-OBJS := sched.o netpoll.o time.o net.o hook.o gg.o
+OBJS := sched.o netpoll.o time.o chan.o net.o hook.o gg.o
 
 ifeq ($(OS), Linux)
 	OBJS += netpoll_linux.o time_linux.o
