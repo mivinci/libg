@@ -80,6 +80,7 @@ struct G {
   Event ev;
   int state;
   int mp;
+  int id;
   void *p;
 };
 
@@ -89,6 +90,7 @@ struct Sched {
   G *ghead;
   G *gtail;
   Timers t;
+  int genid;
 };
 
 void throw(const char *, ...);

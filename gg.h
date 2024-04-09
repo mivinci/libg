@@ -13,8 +13,6 @@ extern "C" {
 #define false 0
 #endif
 
-#include <stddef.h>
-
 #define gg(f, a) gg_spawn((void (*)(void *))f, a, 1048576)
 
 void gg_init(void);

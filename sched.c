@@ -31,6 +31,7 @@ void schedinit(void) {
   sched.gfree = nil;
   sched.ghead = nil;
   sched.gtail = nil;
+  sched.genid = 0;
   timersinit(&sched.t);
 }
 
@@ -70,6 +71,8 @@ void spawn(void (*f)(void *), void *arg, int size) {
   gp->ctx.sp = (void *)sp;
   gp->ctx.pc = (void *)f;
   gp->ctx.gr[6] = arg; /* %rdi */
+  gp->id = sched.genid++;
+
   gput(gp);
 }
 

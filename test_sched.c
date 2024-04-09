@@ -6,7 +6,7 @@ void f1(void) {
   int i;
   for (i = 0; i < 4; i++) {
     puts("f1()");
-    gg_yield1();
+    gg_yield();
   }
 }
 
@@ -14,7 +14,7 @@ void f2(void) {
   int i;
   for (i = 0; i < 4; i++) {
     puts("f2()");
-    gg_yield1();
+    gg_yield();
   }
 }
 

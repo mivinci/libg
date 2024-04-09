@@ -17,11 +17,11 @@ void gg_spawn(void (*f)(void *), void *arg, int size) {
 }
 
 void gg_yield(void) {
-  yield();
+  yield1();
 }
 
 void gg_yield1(void) {
-  yield1();
+  yield();
 }
 
 void gg_sleep(long ms) {
