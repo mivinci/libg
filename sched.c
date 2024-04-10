@@ -6,7 +6,6 @@
 
 #include "runtime.h"
 
-
 static void exit0(void);
 static G *gget(void);
 static void gput(G *);
@@ -66,6 +65,13 @@ void spawn(void (*f)(void *), void *arg, int size) {
   sp = (char *)gp->stackguard + size - sizeof(void *);
   sp = (char *)((unsigned long)sp & -16L);
   memset(gp->ctx.gr, 0, sizeof gp->ctx.gr);
+  /* 
+    NOTE: macOS requires the stack to be 16 bytes allgned
+    on 64-bit machines, so we have to leave 8 bytes for 
+    instruction `push %rbp` that happens at the beginning
+    of each coroutine.
+  */
+  sp -= 8; 
   ret = (void **)sp;
   *ret = (void *)exit0;
   gp->ctx.sp = (void *)sp;
@@ -73,7 +79,7 @@ void spawn(void (*f)(void *), void *arg, int size) {
   gp->ctx.gr[6] = arg; /* %rdi */
   gp->id = sched.genid++;
 
-  gput(gp);
+  ready(gp);
 }
 
 static G *gfget(void) {
