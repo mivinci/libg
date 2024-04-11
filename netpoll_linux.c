@@ -38,6 +38,11 @@ retry:
       goto retry;
     throw("netpoll: epoll_wait failed with %d", n);
   }
+
+#ifdef DEBUG
+  debug("netpoll: n=%d ts.tv_sec=%ld ts.tv_nsec=%d", n, ts.tv_sec, ts.tv_nsec);
+#endif
+
   for (i = 0; i < n; i++) {
     ep = ev + i;
     mode = 0;

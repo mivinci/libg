@@ -3,7 +3,6 @@
 #include <sys/event.h>
 #include <time.h>
 
-
 static int kq = -1;
 
 void netpollinit(void) {
@@ -49,6 +48,11 @@ retry:
       goto retry;
     throw("netpoll: kevent failed with %d", n);
   }
+
+#ifdef DEBUG
+  debug("netpoll: n=%d ts.tv_sec=%ld ts.tv_nsec=%d", n, ts.tv_sec, ts.tv_nsec);
+#endif
+
   for (i = 0; i < n; i++) {
     ep = ev + i;
     mode = 0;

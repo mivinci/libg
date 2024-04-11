@@ -85,14 +85,17 @@ struct G {
 };
 
 struct Sched {
-  G *gx; /* current g running on this scheduler */
+  G *g; /* current g running on this scheduler */
   G *gfree;
   G *ghead;
   G *gtail;
   Timers t;
   int genid;
+  /* debug */
+  int glen;
 };
 
+void debug(const char *, ...);
 void throw(const char *, ...);
 void setcloexec(int);
 void setnonblock(int);

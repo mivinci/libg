@@ -17,6 +17,20 @@ extern int gogo(Gobuf *) asm("gogo");
 
 static __thread Sched sched;
 
+void debug(const char *fmt, ...) {
+  va_list ap;
+
+  fprintf(stdout,
+          "\ndebug(%d):\n"
+          "  sched.genid = %d\n"
+          "  sched.glen  = %d\n",
+          sched.g->id, sched.genid, sched.glen);
+  va_start(ap, fmt);
+  vfprintf(stdout, fmt, ap);
+  va_end(ap);
+  putc('\n', stdout);
+}
+
 void throw(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
@@ -31,15 +45,16 @@ void schedinit(void) {
   sched.ghead = nil;
   sched.gtail = nil;
   sched.genid = 0;
+  sched.glen = 0;
   timersinit(&sched.t);
 }
 
-G *getg(void) { return sched.gx; }
+G *getg(void) { return sched.g; }
 
 static void exit0() {
   G *gp;
-  gp = sched.gx;
-  sched.gx = nil;
+  gp = sched.g;
+  sched.g = nil;
   gp->state = G_DEAD;
   gfput(gp);
   schedule();
@@ -65,13 +80,13 @@ void spawn(void (*f)(void *), void *arg, int size) {
   sp = (char *)gp->stackguard + size - sizeof(void *);
   sp = (char *)((unsigned long)sp & -16L);
   memset(gp->ctx.gr, 0, sizeof gp->ctx.gr);
-  /* 
+  /*
     NOTE: macOS requires the stack to be 16 bytes allgned
-    on 64-bit machines, so we have to leave 8 bytes for 
+    on 64-bit machines, so we have to leave 8 bytes for
     instruction `push %rbp` that happens at the beginning
     of each coroutine.
   */
-  sp -= 8; 
+  sp -= 8;
   ret = (void **)sp;
   *ret = (void *)exit0;
   gp->ctx.sp = (void *)sp;
@@ -106,15 +121,20 @@ static G *gget(void) {
   }
   if (gp == sched.gtail)
     sched.gtail = nil;
+  if (gp)
+    sched.glen--;
   return gp;
 }
 
 static void gput(G *gp) {
+  if (!gp)
+    return;
   if (sched.gtail)
     sched.gtail->next = gp;
   else
     sched.ghead = gp;
   sched.gtail = gp;
+  sched.glen++;
 }
 
 void ready(G *gp) {
@@ -125,7 +145,7 @@ void ready(G *gp) {
 }
 
 void yield1(void) {
-  ready(sched.gx);
+  ready(sched.g);
   yield0(G_RUNNABLE);
 }
 
@@ -133,7 +153,7 @@ void yield(void) { yield0(G_WAITING); }
 
 void yield0(int state) {
   G *gp;
-  gp = sched.gx;
+  gp = sched.g;
   gp->state = state;
   if (gosave(&gp->ctx))
     return;
@@ -164,7 +184,7 @@ retry:
 static void resume(G *gp) {
   if ((char *)gp->ctx.sp - (char *)gp->stackguard < 256)
     throw("resume: stack overflow");
-  sched.gx = gp;
+  sched.g = gp;
   gp->state = G_RUNNING;
   gogo(&gp->ctx);
 }
@@ -182,9 +202,9 @@ int await(int fd, int mode, long ns, long period) {
   G *gp;
   Event *ep;
 
-  gp = sched.gx;
+  gp = sched.g;
   if (!gp)
-    throw("await: sched.gx is nil");
+    throw("await: sched.g is nil");
 
   ep = &gp->ev;
   if (ns > -1) {

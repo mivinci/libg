@@ -31,7 +31,7 @@ int listen0(int type, const char *host, unsigned short port) {
     throw("listen0: bind0 failed with %d", fd);
   if (type != SOCK_STREAM)
     return fd;
-  n = listen(fd, 64);
+  n = listen(fd, 128);
   if (n < 0)
     throw("listen0: listen failed with errno %d", errno);
   return fd;
@@ -54,7 +54,7 @@ int listenunix0(int type, const char *path) {
     throw("listenunix0: bind0 failed with %d", fd);
   if (type != SOCK_STREAM)
     return fd;
-  n = listen(fd, 64);
+  n = listen(fd, 128);
   if (n < 0)
     throw("listenunix0: listen failed with errno %d", errno);
   return fd;

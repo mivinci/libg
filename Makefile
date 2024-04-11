@@ -5,7 +5,7 @@ OS     := $(shell uname -s)
 ARCH   := $(shell uname -m)
 
 ifeq ($(DEBUG), 1)
-	CFLAGS += -g
+	CFLAGS += -g -DDEBUG
 endif
 
 OBJS := sched.o netpoll.o time.o chan.o net.o hook.o gg.o
