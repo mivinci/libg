@@ -13,7 +13,11 @@ extern "C" {
 #define false 0
 #endif
 
-#define gg(f, a) gg_spawn((void (*)(void *))f, a, 1048576)
+#define gg_panic(...) gg_throw(__FILE__, __LINE__, __VA_ARGS__)
+void gg_throw(const char *, int, const char *, ...);
+
+#define gg(f, a)                                                               \
+  gg_spawn((void (*)(void *))(f), (void *)(unsigned long)(a), 4096)
 
 void gg_init(void);
 void gg_wait(void);
@@ -30,14 +34,14 @@ bool gg_send(struct gg_chan *, void *);
 bool gg_recv(struct gg_chan *, void *);
 void gg_close(struct gg_chan *);
 
-#define GG_UDP 0
-#define GG_TCP 1
-
-#define gg_listenudp(h, p) gg_listen(GG_UDP, h, p)
-#define gg_listentcp(h, p) gg_listen(GG_TCP, h, p)
+#define GG_UDP 1
+#define GG_TCP 2
 
 int gg_dial(int, const char *, unsigned short);
 int gg_listen(int, const char *, unsigned short);
+int gg_dialunix(int, const char *);
+int gg_listenunix(int, const char *);
+
 
 #ifdef __cplusplus
 }

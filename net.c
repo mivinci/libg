@@ -5,12 +5,14 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/un.h>
 
-#include "gg.h"
 #include "runtime.h"
 
 static int bind0(int, const char *, unsigned short);
+static int bindunix(int, const char *);
 static int connect0(int, const char *, unsigned short);
+static int connectunix(int, const char *);
 
 void setcloexec(int fd) {}
 
@@ -23,38 +25,47 @@ void setnonblock(int fd) {
 
 int listen0(int type, const char *host, unsigned short port) {
   int fd, n;
-  switch (type) {
-  case GG_UDP:
-    fd = bind0(SOCK_DGRAM, host, port);
-    break;
-  case GG_TCP:
-    fd = bind0(SOCK_STREAM, host, port);
-    if (fd < 0)
-      throw("listen0: bind0 failed with %d", fd);
-    n = listen(fd, 5);
-    if (n < 0)
-      throw("listen0: listen failed with errno %d", errno);
-    break;
-  default:
-    fd = -1;
-    throw("listen0: unsupported type %d", type);
-  }
+
+  fd = bind0(type, host, port);
+  if (fd < 0)
+    throw("listen0: bind0 failed with %d", fd);
+  if (type != SOCK_STREAM)
+    return fd;
+  n = listen(fd, 64);
+  if (n < 0)
+    throw("listen0: listen failed with errno %d", errno);
   return fd;
 }
 
 int dial0(int type, const char *host, unsigned short port) {
   int fd;
-  switch (type) {
-  case GG_UDP:
-    fd = connect0(SOCK_DGRAM, host, port);
-    break;
-  case GG_TCP:
-    fd = connect0(SOCK_STREAM, host, port);
-    break;
-  default:
-    fd = -1;
-    throw("dial0: unsupported type %d", type);
-  }
+
+  fd = connect0(type, host, port);
+  if (fd < 0)
+    throw("dial0: connect0 failed with errno %d", errno);
+  return fd;
+}
+
+int listenunix0(int type, const char *path) {
+  int fd, n;
+
+  fd = bindunix(type, path);
+  if (fd < 0)
+    throw("listenunix0: bind0 failed with %d", fd);
+  if (type != SOCK_STREAM)
+    return fd;
+  n = listen(fd, 64);
+  if (n < 0)
+    throw("listenunix0: listen failed with errno %d", errno);
+  return fd;
+}
+
+int dialunix0(int net, const char *path) {
+  int fd;
+
+  fd = connectunix(SOCK_STREAM, path);
+  if (fd < 0)
+    throw("dialunix0: connectunix failed with errno %d", errno);
   return fd;
 }
 
@@ -119,5 +130,43 @@ int connect0(int type, const char *host, unsigned short port) {
     break;
   }
   freeaddrinfo(ap);
+  return fd;
+}
+
+static int bindunix(int type, const char *path) {
+  struct sockaddr_un sa;
+  int fd, n;
+
+  memset(&sa, 0, sizeof sa);
+  strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+  sa.sun_family = AF_UNIX;
+
+  fd = socket(sa.sun_family, type, 0);
+  if (fd < 0)
+    throw("bindunix: socket failed with errno %d", errno);
+
+  n = bind(fd, (struct sockaddr *)&sa, sizeof sa);
+  if (n < 0)
+    throw("bindunix: bind failed with errno %d", errno);
+
+  return fd;
+}
+
+static int connectunix(int type, const char *path) {
+  struct sockaddr_un sa;
+  int fd, n;
+
+  memset(&sa, 0, sizeof sa);
+  strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+  sa.sun_family = AF_UNIX;
+
+  fd = socket(sa.sun_family, type, 0);
+  if (fd < 0)
+    throw("bindunix: socket failed with errno %d", errno);
+
+  n = connect(fd, (struct sockaddr *)&sa, sizeof sa);
+  if (n < 0)
+    throw("bindunix: connect failed with errno %d", errno);
+
   return fd;
 }

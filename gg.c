@@ -1,3 +1,8 @@
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+
 #include "gg.h"
 #include "runtime.h"
 
@@ -44,10 +49,60 @@ void gg_close(struct gg_chan *cp) {
   return chanclose((Chan*)cp);
 }
 
-int gg_dial(int type, const char *host, unsigned short port) {
-  return dial0(type, host, port);
+int gg_dial(int net, const char *host, unsigned short port) {
+  switch (net) {
+  case GG_UDP:
+    return dial0(SOCK_DGRAM, host, port);
+  case GG_TCP:
+    return dial0(SOCK_STREAM, host, port);
+  default:
+    throw("gg_dial: unsupported net %d", net);
+  }
+  __builtin_unreachable();
 }
 
-int gg_listen(int type, const char *host, unsigned short port) {
-  return listen0(type, host, port);
+int gg_listen(int net, const char *host, unsigned short port) {
+  switch (net) {
+  case GG_UDP:
+    return listen0(SOCK_DGRAM, host, port);
+  case GG_TCP:
+    return listen0(SOCK_STREAM, host, port);
+  default:
+    throw("gg_listen: unsupported net %d", net);
+  }
+  __builtin_unreachable();
+}
+
+int gg_dialunix(int net, const char *path) {
+  switch (net) {
+  case GG_UDP:
+    return dialunix0(SOCK_DGRAM, path);
+  case GG_TCP:
+    return dialunix0(SOCK_STREAM, path);
+  default:
+    throw("gg_dialunix: unsupported net %d", net);
+  }
+  __builtin_unreachable();
+}
+
+int gg_listenunix(int net, const char *path) {
+  switch (net) {
+  case GG_UDP:
+    return listenunix0(SOCK_DGRAM, path);
+  case GG_TCP:
+    return listenunix0(SOCK_STREAM, path);
+  default:
+    throw("gg_listenunix: unsupported net %d", net);
+  }
+  __builtin_unreachable();
+}
+
+void gg_throw(const char *file, int line, const char *fmt, ...) {
+  va_list ap;
+  fprintf(stderr, "%s:%d ", file, line);
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+  putc('\n', stderr);
+  exit(1);
 }

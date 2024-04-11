@@ -28,8 +28,13 @@ void f1(void) {
   struct sockaddr sa;
   socklen_t n;
   int fd, peerfd;
+  char *path;
 
-  fd = gg_listen(GG_TCP, "localhost", 8000);
+  path = "gg.sock";
+  if (access(path, F_OK) == 0)
+    remove(path);
+    
+  fd = gg_listenunix(GG_TCP, path);
 
   for (;;) {
     peerfd = accept(fd, &sa, &n);

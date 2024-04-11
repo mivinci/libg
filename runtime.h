@@ -121,5 +121,7 @@ bool chanrecv(Chan *, void *, bool);
 void chanclose(Chan *);
 int dial0(int, const char *, unsigned short);
 int listen0(int, const char *, unsigned short);
+int dialunix0(int, const char *);
+int listenunix0(int, const char *);
 
 #endif
