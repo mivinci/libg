@@ -13,9 +13,6 @@ extern "C" {
 #define false 0
 #endif
 
-#define gg_panic(...) gg_throw(__FILE__, __LINE__, __VA_ARGS__)
-void gg_throw(const char *, int, const char *, ...);
-
 #define gg(f, a)                                                               \
   gg_spawn((void (*)(void *))(f), (void *)(unsigned long)(a), 4096)
 
